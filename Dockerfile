@@ -16,7 +16,7 @@ RUN cat /tmp/ssh_key.pub >> /root/.ssh/authorized_keys && rm -f /tmp/ssh_key.pub
 
 ADD excludes /etc/dpkg/dpkg.cfg.d/excludes
 
-RUN apt-get update && apt-get -y --no-install-recommends install php5 php5-mysql php5-json php5-curl
+RUN apt-get update && apt-get -y --no-install-recommends install php5 php5-mysql php5-json php5-curl default-jdk
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
