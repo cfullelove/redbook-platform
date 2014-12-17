@@ -1,0 +1,3 @@
+
+## Redbook worker
+*       *       *       *       *       /usr/bin/php /app/scripts/worker.php ONE_TIME_MODE > /app/log/worker.log
