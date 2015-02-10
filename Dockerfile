@@ -16,7 +16,7 @@ RUN cat /tmp/ssh_key.pub >> /root/.ssh/authorized_keys && rm -f /tmp/ssh_key.pub
 
 ADD excludes /etc/dpkg/dpkg.cfg.d/excludes
 
-RUN apt-get update && apt-get -y --no-install-recommends install php5 php5-mysql php5-json php5-curl default-jdk
+RUN apt-get update && apt-get -y --no-install-recommends install php5 php5-mysql php5-json php5-curl php5-cli git
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -34,4 +34,9 @@ RUN chmod 0600 /var/spool/cron/crontabs/www-data && \
 	chown www-data:www-data /var/spool/cron/crontabs/www-data && \
 	echo 'Australia/Brisbane' > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 
-VOLUME ["/app"]
+ADD Redbook /app
+RUN chown -R www-data:www-data /app && \
+	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+	composer self-update && composer update --no-dev -n -d /app
+
+VOLUME ["/app/config", "/app/log"]
