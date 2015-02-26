@@ -14,6 +14,7 @@ Requirements:
 
 ```
 # docker run -d -v /path/to/redbook:/app --link <db_container>:mysql redbook-platform:<tag>
+# docker run -d -v ~/redbook/config:/app/config -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro --link mysql5.6:mysql redbook-development:2b5bbef
 ```
 
 Optional:
