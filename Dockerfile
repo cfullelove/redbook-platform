@@ -2,41 +2,27 @@
 
 ## Base platform for a redbook instance
 
-FROM phusion/baseimage:0.9.13
+FROM maxexcloo/nginx-php:latest
 
-RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
-
-CMD ["/sbin/my_init"]
-
-ENV HOME /home
-ENV EDITOR /usr/bin/vim 
-ADD ssh_key.pub /tmp/ssh_key.pub
-
-RUN cat /tmp/ssh_key.pub >> /root/.ssh/authorized_keys && rm -f /tmp/ssh_key.pub
-
-ADD excludes /etc/dpkg/dpkg.cfg.d/excludes
-
-RUN apt-get update && apt-get -y --no-install-recommends install php5 php5-mysql php5-json php5-curl php5-cli git
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN mkdir -p /etc/service/apache2
-ADD apache-run /etc/service/apache2/run
-RUN chmod 755 /etc/service/apache2/run && \
-	rm /etc/apache2/sites-available/000-default.conf && \
-	ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/ && \
-	ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
-
-ADD apache.conf /etc/apache2/sites-available/000-default.conf
-ADD crontab /var/spool/cron/crontabs/www-data
-
-RUN chmod 0600 /var/spool/cron/crontabs/www-data && \
-	chown www-data:www-data /var/spool/cron/crontabs/www-data && \
-	echo 'Australia/Brisbane' > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
-
+RUN mkdir /app
 ADD Redbook /app
-RUN chown -R www-data:www-data /app && \
-	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
-	composer self-update && composer update --no-dev -n -d /app
+
+ADD supervisord-redbook.conf /etc/supervisor/conf.d/redbook.conf
+ADD nginx-host.conf /etc/nginx/host.d/default.conf
+ADD nginx-php.conf /etc/nginx/addon.d/default-php.conf
+ADD init-timezone /config/init-timezone
+ADD init-redbook /config/init-redbook
+#ADD nginx-php.conf /etc/nginx/addon.d/default-php.conf
+
+## ADD SSh
+RUN apt-get install -y -qq openssh-server vim curl git
+RUN mkdir -p /var/run/sshd
+ADD supervisord-sshd.conf /etc/supervisor/conf.d/sshd.conf
+EXPOSE 22
+ADD ssh_key.pub /root/.ssh/authorized_keys 
+
+RUN chown -R core:core /app \
+	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
+	&& /usr/bin/composer install --no-dev -n -d /app
 
 VOLUME ["/app/config", "/app/log"]

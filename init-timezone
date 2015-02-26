@@ -1,0 +1,6 @@
+#!/bin/bash
+
+TZ=$(cat /etc/timezone)
+cp /etc/php5/fpm/php.ini /tmp/php.ini.sav
+sed "s#;date.timezone.*#date.timezone = ${TZ}#" < /etc/php5/fpm/php.ini > /tmp/php.ini
+cp /tmp/php.ini /etc/php5/fpm/php.ini

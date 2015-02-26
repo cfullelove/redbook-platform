@@ -1,17 +1,13 @@
 #!/bin/bash
 
-TAG=`date +%Y%m%d%H%M%S`
-
-if [[ "$1" -eq "" ]]; then
+if [[ "$1" == "" ]]; then
 	BRANCH="master";
 else
 	BRANCH="$1";
 fi;
 
-echo redbook-${BRANCH}:${TAG}
-
 if [ ! -d "Redbook" ]; then
-	git clone github:cfullelove/Redbook.git
+	git clone github.com:cfullelove/Redbook.git
 fi
 
 if [ ! -d "Redbook" ]; then
@@ -23,6 +19,8 @@ cd Redbook
 git checkout -f $BRANCH
 git pull origin $BRANCH
 
+TAG=$(git rev-parse --short HEAD)
+
 cd ..
 
-docker build -t redbook-${BRANCH}:${TAG} .
+sudo docker build -t redbook-${BRANCH}:${TAG} .

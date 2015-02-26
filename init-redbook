@@ -1,0 +1,3 @@
+touch /app/log/redbook.log
+touch /app/log/worker.log
+chown -R core:core /app
